@@ -5,30 +5,49 @@ using UnityEngine.InputSystem;
 
 public class CameraZoom : MonoBehaviour
 {
-    private float zoom;
+    [SerializeField] private float sensitivity = 120;
+    private Actions actions;
+    private InputAction scrollAction;
 
     void Awake()
     {
-        if(Camera.main.orthographic == true)
-        {
-            zoom = Camera.main.orthographicSize;
-        } 
-        else 
-        {
-            zoom = Camera.main.fieldOfView;
-        }
+        actions = new Actions();
+        scrollAction = actions.camera.zoom;
+    }
+
+    void OnEnable()
+    {
+        actions.camera.Enable();
+    }
+
+    void OnDisable()
+    {
+        actions.camera.Disable();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Camera.main.orthographic == true)
+        float zoom = 1 + (scrollAction.ReadValue<float>()/sensitivity);
+        
+        Camera.main.orthographicSize *= zoom;
+        Camera.main.fieldOfView *= zoom;
+
+        if(Camera.main.orthographicSize < 0)
         {
-            Camera.main.orthographicSize = zoom;
+            Camera.main.orthographicSize = 0;
         } 
-        else 
+        else if(Camera.main.orthographicSize > 10)
         {
-            Camera.main.fieldOfView = zoom;
+            Camera.main.orthographicSize = 10;
+        }
+        if(Camera.main.fieldOfView < 0)
+        {
+            Camera.main.fieldOfView = 0;
+        } 
+        else if(Camera.main.fieldOfView > 100)
+        {
+            Camera.main.fieldOfView = 100;
         }
     }
 }
